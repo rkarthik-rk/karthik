@@ -964,6 +964,41 @@
     .contact-item-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
     .contact-item-value { font-size: 0.95rem; font-weight: 500; color: var(--text); }
 
+    /* WhatsApp highlight bar */
+    .whatsapp-highlight {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      margin: 20px 0 8px;
+      background: linear-gradient(135deg, rgba(37,211,102,0.12), rgba(37,211,102,0.06));
+      border: 1px solid rgba(37,211,102,0.35);
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all var(--transition);
+    }
+    .whatsapp-highlight:hover {
+      background: linear-gradient(135deg, rgba(37,211,102,0.2), rgba(37,211,102,0.1));
+      border-color: rgba(37,211,102,0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(37,211,102,0.15);
+    }
+    .wa-icon {
+      width: 48px; height: 48px;
+      background: #25d366;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+    }
+    .wa-text { flex: 1; }
+    .wa-text strong { display: block; font-size: 0.95rem; font-weight: 700; color: #25d366; margin-bottom: 2px; }
+    .wa-text span   { font-size: 0.8rem; color: var(--muted); }
+    .wa-arrow       { color: rgba(37,211,102,0.5); font-size: 0.9rem; transition: transform var(--transition); }
+    .whatsapp-highlight:hover .wa-arrow { transform: translateX(4px); color: #25d366; }
+
     .social-links { display: flex; gap: 12px; margin-top: 32px; }
     .social-btn {
       width: 44px; height: 44px;
@@ -1729,12 +1764,25 @@
           </div>
         </div>
 
+        <!-- WhatsApp highlight -->
+        <a href="https://wa.me/919994271252" target="_blank" rel="noopener" class="whatsapp-highlight">
+          <div class="wa-icon"><i class="fab fa-whatsapp"></i></div>
+          <div class="wa-text">
+            <strong>Chat on WhatsApp</strong>
+            <span>+91 99942 71252 · Typically replies fast</span>
+          </div>
+          <i class="fas fa-arrow-right wa-arrow"></i>
+        </a>
+
         <div class="social-links">
           <a href="https://www.linkedin.com/in/karthik-rajendran-rk/" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn">
             <i class="fab fa-linkedin-in"></i>
           </a>
           <a href="mailto:karthik.ar.ar@gmail.com" class="social-btn" aria-label="Email">
             <i class="fas fa-envelope"></i>
+          </a>
+          <a href="https://wa.me/919994271252" target="_blank" rel="noopener" class="social-btn" style="background:rgba(37,211,102,0.1);border-color:rgba(37,211,102,0.3);color:#25d366" aria-label="WhatsApp">
+            <i class="fab fa-whatsapp"></i>
           </a>
           <a href="Karthik - 2026 Resume.pdf" download class="social-btn" aria-label="Download Resume">
             <i class="fas fa-file-pdf"></i>
@@ -1752,6 +1800,10 @@
         </p>
         <a href="mailto:karthik.ar.ar@gmail.com" class="btn-primary" style="display:inline-flex; margin-bottom:16px">
           <i class="fas fa-envelope"></i> Send me a message
+        </a>
+        <br/>
+        <a href="https://wa.me/919994271252" target="_blank" rel="noopener" class="btn-primary" style="display:inline-flex; margin-bottom:16px; background:linear-gradient(135deg,#25d366,#128c7e); box-shadow:0 0 30px rgba(37,211,102,0.3)">
+          <i class="fab fa-whatsapp"></i> WhatsApp me
         </a>
         <br/>
         <a href="Karthik - 2026 Resume.pdf" download class="btn-secondary" style="display:inline-flex">
