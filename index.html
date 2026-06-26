@@ -1130,43 +1130,123 @@
     /* ===================== RESPONSIVE ===================== */
     @media (max-width: 1024px) {
       .skills-grid { grid-template-columns: repeat(2, 1fr); }
-      .achievements-banner { grid-template-columns: repeat(2, 1fr); }
+      .achievements-banner { grid-template-columns: repeat(2, 1fr) !important; }
       .achievement-stat::after { display: none; }
     }
 
     @media (max-width: 768px) {
+      /* Base */
       section { padding: 60px 0; }
+      .container { padding: 0 18px; }
+      .section-desc { font-size: 1rem; margin-bottom: 36px; }
+
+      /* Nav */
       .nav-links, .nav-cta-wrap { display: none; }
       .nav-toggle { display: flex; }
 
-      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      /* Hero */
+      .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 32px; }
       .hero-visual { order: -1; }
-      .hero-img-wrap { width: 240px; height: 240px; }
-      .hero-actions { justify-content: center; }
-      .hero-stats { justify-content: center; }
+      .hero-img-wrap { width: 200px; height: 200px; }
+      .hero-ring, .hero-ring-2 { display: none; }
+      .hero-actions { justify-content: center; flex-direction: column; align-items: center; }
+      .hero-actions .btn-primary,
+      .hero-actions .btn-secondary { width: 100%; max-width: 300px; justify-content: center; }
+      .hero-stats { justify-content: center; flex-wrap: wrap; gap: 20px 28px; }
+      .hero-desc { font-size: 0.95rem; margin: 0 auto 32px; }
       .badge-freshworks, .badge-anchanto { display: none; }
+      .scroll-hint { display: none; }
 
-      .about-grid { grid-template-columns: 1fr; }
-      .about-img-wrap { max-width: 280px; margin: 0 auto; }
+      /* About */
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-img-wrap { max-width: 260px; margin: 0 auto; }
+      .about-card { right: 0; bottom: -16px; padding: 14px 18px; }
+      .about-card-num { font-size: 1.8rem; }
       .about-highlights { grid-template-columns: 1fr; }
+      .about-content p { font-size: 0.95rem; }
 
+      /* Experience / Timeline */
+      .timeline::before { left: 10px; }
+      .timeline-item { grid-template-columns: 28px 1fr; gap: 16px; }
+      .timeline-dot { width: 16px; height: 16px; }
+      .exp-card { padding: 20px 16px; }
+      .exp-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .exp-title { font-size: 1.05rem; }
+      .exp-achievements li { font-size: 0.88rem; }
+      .exp-tags { gap: 6px; }
+      .tag { font-size: 0.68rem; padding: 3px 10px; }
+
+      /* Skills */
       .skills-grid { grid-template-columns: 1fr; }
-      .achievements-banner { grid-template-columns: 1fr 1fr; padding: 32px; gap: 24px; }
+      .skill-category { padding: 24px 18px; }
 
-      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      /* Achievements */
+      .achievements-banner { grid-template-columns: 1fr 1fr !important; padding: 24px 16px; gap: 20px; }
+      .achievement-num { font-size: 2.2rem; }
+      .achievement-label { font-size: 0.78rem; }
+
+      /* Education */
+      .edu-card { flex-direction: column; text-align: center; padding: 28px 20px; gap: 16px; }
+      .edu-icon { margin: 0 auto; }
+
+      /* Gallery */
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .gallery-item-large { grid-column: span 1; grid-row: span 1; }
 
-      .contact-grid { grid-template-columns: 1fr; }
+      /* Contact */
+      .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+      .contact-cta-card { padding: 28px 20px; }
+      .contact-cta-card .btn-primary,
+      .contact-cta-card .btn-secondary { width: 100%; justify-content: center; }
+      .whatsapp-highlight { padding: 14px 16px; }
+      .wa-icon { width: 40px; height: 40px; font-size: 1.2rem; }
+      .social-links { flex-wrap: wrap; }
+      .social-btn { width: 48px; height: 48px; }
 
-      .footer-inner { flex-direction: column; align-items: center; text-align: center; }
+      /* Footer */
+      .footer-inner { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+      .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+
+      /* Back to top */
+      .back-top { bottom: 20px; right: 16px; width: 44px; height: 44px; }
     }
 
     @media (max-width: 480px) {
-      .hero-name { font-size: 2.2rem; }
-      .gallery-grid { grid-template-columns: 1fr; }
-      .achievements-banner { grid-template-columns: 1fr; }
-      .hero-stats { flex-direction: column; gap: 16px; }
+      /* Base */
+      .container { padding: 0 14px; }
+      section { padding: 48px 0; }
+
+      /* Hero */
+      .hero-name { font-size: 2rem; }
+      .hero-role { font-size: 0.95rem; }
+      .hero-badge { font-size: 0.72rem; }
+      .hero-stats { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 16px; }
+      .stat-num { font-size: 1.8rem; }
       .stat-divider { display: none; }
+      .hero-img-wrap { width: 170px; height: 170px; }
+
+      /* Achievements */
+      .achievements-banner { grid-template-columns: 1fr !important; padding: 20px 14px; }
+
+      /* Gallery */
+      .gallery-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+
+      /* Exp card */
+      .exp-card { padding: 16px 14px; }
+      .exp-achievements li { gap: 8px; }
+
+      /* Contact CTA */
+      .contact-cta-icon { width: 60px; height: 60px; font-size: 1.5rem; }
+      .contact-cta-card h3 { font-size: 1.1rem; }
+
+      /* Buttons min touch target */
+      .btn-primary, .btn-secondary { padding: 14px 20px; font-size: 0.9rem; min-height: 48px; }
+    }
+
+    /* Prevent horizontal overflow globally on mobile */
+    @media (max-width: 768px) {
+      html, body { overflow-x: hidden; max-width: 100vw; }
+      * { min-width: 0; }
     }
   </style>
 </head>
@@ -1640,7 +1720,7 @@
     </div>
 
     <!-- Second row -->
-    <div class="achievements-banner reveal-up" style="margin-top: 24px; grid-template-columns: repeat(4,1fr)">
+    <div class="achievements-banner reveal-up" style="margin-top: 24px">
       <div class="achievement-stat">
         <div class="achievement-num" style="background: var(--grad2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text">30+</div>
         <div class="achievement-label">Engineers directly managed across squads and organizations</div>
@@ -1798,17 +1878,17 @@
           modernization to AI-driven developer productivity and revenue-driving product delivery.
           Let's talk about what we can build together.
         </p>
-        <a href="mailto:karthik.ar.ar@gmail.com" class="btn-primary" style="display:inline-flex; margin-bottom:16px">
-          <i class="fas fa-envelope"></i> Send me a message
-        </a>
-        <br/>
-        <a href="https://wa.me/919994271252" target="_blank" rel="noopener" class="btn-primary" style="display:inline-flex; margin-bottom:16px; background:linear-gradient(135deg,#25d366,#128c7e); box-shadow:0 0 30px rgba(37,211,102,0.3)">
-          <i class="fab fa-whatsapp"></i> WhatsApp me
-        </a>
-        <br/>
-        <a href="Karthik - 2026 Resume.pdf" download class="btn-secondary" style="display:inline-flex">
-          <i class="fas fa-download"></i> Download Resume
-        </a>
+        <div style="display:flex; flex-direction:column; gap:12px; align-items:center;">
+          <a href="mailto:karthik.ar.ar@gmail.com" class="btn-primary" style="display:inline-flex; width:100%; justify-content:center">
+            <i class="fas fa-envelope"></i> Send me a message
+          </a>
+          <a href="https://wa.me/919994271252" target="_blank" rel="noopener" class="btn-primary" style="display:inline-flex; width:100%; justify-content:center; background:linear-gradient(135deg,#25d366,#128c7e); box-shadow:0 0 30px rgba(37,211,102,0.3)">
+            <i class="fab fa-whatsapp"></i> WhatsApp me
+          </a>
+          <a href="Karthik - 2026 Resume.pdf" download class="btn-secondary" style="display:inline-flex; width:100%; justify-content:center">
+            <i class="fas fa-download"></i> Download Resume
+          </a>
+        </div>
       </div>
     </div>
   </div>
