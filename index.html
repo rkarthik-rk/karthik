@@ -643,20 +643,20 @@
 
     .exp-achievements { list-style: none; }
     .exp-achievements li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 8px 0;
+      position: relative;
+      padding: 8px 0 8px 18px;
       color: var(--muted);
       font-size: 0.92rem;
+      line-height: 1.65;
       border-bottom: 1px solid rgba(255,255,255,0.03);
     }
     .exp-achievements li:last-child { border-bottom: none; }
     .exp-achievements li::before {
       content: '▸';
       color: var(--blue);
-      flex-shrink: 0;
-      margin-top: 2px;
+      position: absolute;
+      left: 0;
+      top: 10px;
       font-size: 0.8rem;
     }
     .exp-achievements li strong { color: var(--text); }
@@ -1233,7 +1233,7 @@
 
       /* Exp card */
       .exp-card { padding: 16px 14px; }
-      .exp-achievements li { gap: 8px; }
+      .exp-achievements li { font-size: 0.86rem; padding-left: 16px; }
 
       /* Contact CTA */
       .contact-cta-icon { width: 60px; height: 60px; font-size: 1.5rem; }
