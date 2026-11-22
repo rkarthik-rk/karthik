@@ -117,6 +117,17 @@
 
     .ambient-glow { position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.1; pointer-events: none; z-index: 0; background: radial-gradient(circle, var(--accent), transparent 70%); }
 
+    .section-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.55; pointer-events: none; }
+
+    /* Tilt glare (moving specular highlight, synced with mouse-tracked tilt) */
+    .tilt-glare {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(244,242,236,0.16), transparent 55%);
+      opacity: 0; transition: opacity 0.25s ease;
+      border-radius: inherit;
+    }
+    .tilt-glare.is-active { opacity: 1; }
+
     /* Cursor glow (desktop only, added via JS) */
     #cursorGlow {
       position: fixed;
@@ -453,6 +464,7 @@
     .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 
     .skill-category {
+      position: relative; overflow: hidden;
       background: var(--glass);
       backdrop-filter: blur(20px) saturate(120%);
       border: 1px solid var(--border);
@@ -485,6 +497,7 @@
 
     .achievements-banner { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     .achievement-tile {
+      position: relative; overflow: hidden;
       background: var(--glass);
       backdrop-filter: blur(20px) saturate(120%);
       border: 1px solid var(--border);
@@ -505,6 +518,7 @@
     #education { background: var(--bg2); }
 
     .edu-card {
+      position: relative; overflow: hidden;
       background: var(--glass);
       backdrop-filter: blur(20px) saturate(120%);
       border: 1px solid var(--border);
@@ -784,6 +798,7 @@
 
 <!-- ==================== ABOUT ==================== -->
 <section id="about">
+  <canvas id="aboutCanvas" class="section-canvas" aria-hidden="true"></canvas>
   <div class="ambient-glow" style="width:500px;height:500px;top:-100px;left:-150px;"></div>
   <div class="container">
     <div class="about-grid">
@@ -1137,6 +1152,7 @@
 
 <!-- ==================== CONTACT ==================== -->
 <section id="contact">
+  <canvas id="contactCanvas" class="section-canvas" aria-hidden="true"></canvas>
   <div class="ambient-glow" style="width:480px;height:480px;top:-80px;right:-140px;"></div>
   <div class="container">
     <div class="contact-grid">
@@ -1280,18 +1296,33 @@
     })();
   }
 
-  /* ---------- CSS 3D tilt ---------- */
+  /* ---------- CSS 3D tilt + glare ---------- */
   if (canHover && !reduceMotion) {
     document.querySelectorAll('.tilt').forEach(function (el) {
       var maxDeg = el.classList.contains('gallery-item') ? 6 : 8;
+
+      /* glare lives on the clipping child (.frame-inner) when present, else on el itself */
+      var glareHost = el.querySelector('.frame-inner') || el;
+      var glare = document.createElement('div');
+      glare.className = 'tilt-glare';
+      glareHost.appendChild(glare);
+
       el.addEventListener('mousemove', function (e) {
         var r = el.getBoundingClientRect();
         var x = (e.clientX - r.left) / r.width - 0.5;
         var y = (e.clientY - r.top) / r.height - 0.5;
         el.style.transform = 'perspective(900px) rotateX(' + (-y * maxDeg).toFixed(2) + 'deg) rotateY(' + (x * maxDeg).toFixed(2) + 'deg) scale3d(1.015,1.015,1.015)';
+
+        var gr = glareHost.getBoundingClientRect();
+        var gx = ((e.clientX - gr.left) / gr.width * 100).toFixed(1);
+        var gy = ((e.clientY - gr.top) / gr.height * 100).toFixed(1);
+        glare.style.setProperty('--mx', gx + '%');
+        glare.style.setProperty('--my', gy + '%');
+        glare.classList.add('is-active');
       });
       el.addEventListener('mouseleave', function () {
         el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+        glare.classList.remove('is-active');
       });
     });
   }
@@ -1321,9 +1352,22 @@
     gsap.registerPlugin(ScrollTrigger);
 
     if (!reduceMotion) {
-      gsap.utils.toArray('.reveal-up').forEach(function (el) {
-        gsap.from(el, { y: 36, opacity: 0, duration: 0.8, ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 88%' } });
+      /* 3D tilt-in reveal: elements rotate up out of the page as they enter view */
+      gsap.utils.toArray('.reveal-up:not(.achievement-tile)').forEach(function (el) {
+        gsap.from(el, {
+          y: 44, opacity: 0, rotateX: -14, transformPerspective: 800, transformOrigin: '50% 100%',
+          duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%' }
+        });
+      });
+
+      /* Achievement tiles: staggered 3D flip-in across the grid */
+      gsap.utils.toArray('.achievements-banner').forEach(function (banner) {
+        gsap.from(banner.querySelectorAll('.achievement-tile'), {
+          rotateY: 90, opacity: 0, transformPerspective: 900, transformOrigin: '50% 50%',
+          duration: 0.75, stagger: 0.09, ease: 'power2.out',
+          scrollTrigger: { trigger: banner, start: 'top 85%' }
+        });
       });
 
       gsap.utils.toArray('.skill-bar-fill[data-width]').forEach(function (bar) {
@@ -1422,15 +1466,19 @@
     scene.add(icosahedron);
 
     var clock = new THREE.Clock();
+    var scrollT = 0; /* 0 -> 1 scroll progress through the hero, drives camera depth */
 
     function animate() {
       if (!running) return;
       raf = requestAnimationFrame(animate);
       var t = clock.getElapsedTime();
       group.rotation.y = t * 0.08 + mouseX * 0.3;
-      group.rotation.x = mouseY * 0.15;
+      group.rotation.x = mouseY * 0.15 + scrollT * 0.25;
       icosahedron.rotation.y = t * 0.05 + mouseX * 0.2;
       icosahedron.rotation.x = t * 0.03 + mouseY * 0.1;
+      icosahedron.rotation.z = scrollT * 0.4;
+      camera.position.z = 14 - scrollT * 4;
+      camera.position.y = scrollT * 1.5;
       renderer.render(scene, camera);
     }
     animate();
@@ -1440,6 +1488,13 @@
         var r = heroSection.getBoundingClientRect();
         mouseX = ((e.clientX - r.left) / r.width - 0.5);
         mouseY = ((e.clientY - r.top) / r.height - 0.5);
+      });
+    }
+
+    if (typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.create({
+        trigger: heroSection, start: 'top top', end: 'bottom top', scrub: 0.6,
+        onUpdate: function (self) { scrollT = self.progress; }
       });
     }
 
@@ -1456,6 +1511,132 @@
     document.addEventListener('visibilitychange', function () {
       running = document.visibilityState === 'visible' && running;
     });
+  })();
+
+  /* ---------- Three.js mini-scene: About (rotating wireframe torus) ---------- */
+  (function initAboutScene() {
+    var canvas = document.getElementById('aboutCanvas');
+    var section = document.getElementById('about');
+    if (!canvas || typeof THREE === 'undefined' || reduceMotion || isSmall) { if (canvas) canvas.style.display = 'none'; return; }
+
+    var renderer, scene, camera, torus, raf, running = true;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    } catch (e) { canvas.style.display = 'none'; return; }
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(50, section.clientWidth / section.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 11);
+
+    function sizeRenderer() {
+      var w = section.clientWidth, h = section.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    sizeRenderer();
+
+    var torusGeo = new THREE.TorusGeometry(2.6, 0.85, 10, 48);
+    var edges = new THREE.EdgesGeometry(torusGeo, 20);
+    var mat = new THREE.LineBasicMaterial({ color: 0xff1238, transparent: true, opacity: 0.24 });
+    torus = new THREE.LineSegments(edges, mat);
+    torus.position.set(7.8, 2.4, -2);
+    torus.rotation.x = 0.6;
+    scene.add(torus);
+
+    var clock = new THREE.Clock();
+    function animate() {
+      if (!running) return;
+      raf = requestAnimationFrame(animate);
+      var t = clock.getElapsedTime();
+      torus.rotation.y = t * 0.12;
+      torus.rotation.z = t * 0.05;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', sizeRenderer);
+    var visObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { running = e.isIntersecting; if (running && !raf) animate(); });
+    }, { threshold: 0 });
+    visObs.observe(section);
+    document.addEventListener('visibilitychange', function () { running = document.visibilityState === 'visible' && running; });
+  })();
+
+  /* ---------- Three.js mini-scene: Contact (floating node cluster) ---------- */
+  (function initContactScene() {
+    var canvas = document.getElementById('contactCanvas');
+    var section = document.getElementById('contact');
+    if (!canvas || typeof THREE === 'undefined' || reduceMotion || isSmall) { if (canvas) canvas.style.display = 'none'; return; }
+
+    var renderer, scene, camera, group, raf, running = true;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    } catch (e) { canvas.style.display = 'none'; return; }
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(50, section.clientWidth / section.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 11);
+
+    function sizeRenderer() {
+      var w = section.clientWidth, h = section.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    sizeRenderer();
+
+    var count = 34;
+    var positions = new Float32Array(count * 3);
+    for (var i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 9;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 6;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 5;
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    var mat = new THREE.PointsMaterial({ color: 0xff1238, size: 0.09, transparent: true, opacity: 0.7 });
+    var points = new THREE.Points(geo, mat);
+
+    var linePositions = [];
+    for (var a = 0; a < count; a++) {
+      for (var b = a + 1; b < count; b++) {
+        var dx = positions[a*3] - positions[b*3], dy = positions[a*3+1] - positions[b*3+1], dz = positions[a*3+2] - positions[b*3+2];
+        if (Math.sqrt(dx*dx + dy*dy + dz*dz) < 2.8) {
+          linePositions.push(positions[a*3], positions[a*3+1], positions[a*3+2], positions[b*3], positions[b*3+1], positions[b*3+2]);
+        }
+      }
+    }
+    var lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePositions), 3));
+    var lineMat = new THREE.LineBasicMaterial({ color: 0xff1238, transparent: true, opacity: 0.1 });
+    var lines = new THREE.LineSegments(lineGeo, lineMat);
+
+    group = new THREE.Group();
+    group.add(points);
+    group.add(lines);
+    group.position.set(4, 0, 0);
+    scene.add(group);
+
+    var clock = new THREE.Clock();
+    function animate() {
+      if (!running) return;
+      raf = requestAnimationFrame(animate);
+      var t = clock.getElapsedTime();
+      group.rotation.y = t * 0.1;
+      group.rotation.x = Math.sin(t * 0.3) * 0.1;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', sizeRenderer);
+    var visObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { running = e.isIntersecting; if (running && !raf) animate(); });
+    }, { threshold: 0 });
+    visObs.observe(section);
+    document.addEventListener('visibilitychange', function () { running = document.visibilityState === 'visible' && running; });
   })();
 
 })();
